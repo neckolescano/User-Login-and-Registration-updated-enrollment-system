@@ -200,7 +200,7 @@
         @auth
             @if(Auth::user()->role === 'Student')
                 <a href="{{ route('enrollments.index') }}" class="nav-link {{ Request::routeIs('enrollments.index') ? 'active' : '' }}">MY RECORDS</a>
-                <a href="{{ route('enrollments.step1') }}" class="nav-link {{ Request::routeIs('enrollments.step1') ? 'active' : '' }}">ENROLL NOW</a>
+                <a href="{{ route('enrollments.step3') }}" class="nav-link {{ Request::routeIs('enrollments.step1') ? 'active' : '' }}">ENROLL NOW</a>
             @endif
 
             @can('registrar-access')

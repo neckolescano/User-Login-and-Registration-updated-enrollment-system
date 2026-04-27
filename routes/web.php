@@ -30,11 +30,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('home');
     Route::get('/admin-portal', [DashboardController::class, 'index'])->name('dashboard');
 
-    /* STUDENT ONLY */
+    /* STUDENT ONLY - Refactored to 3-Step UI */
     Route::middleware('can:student-only')->group(function () {
-        Route::get('/enroll', [EnrollmentController::class, 'showStep1'])->name('enrollments.step1');
-        Route::get('/enroll/subjects', [EnrollmentController::class, 'showStep3'])->name('enrollments.step3');
+        Route::get('/enroll', [EnrollmentController::class, 'showStep3'])->name('enrollments.step3');
         Route::post('/enroll/subjects', [EnrollmentController::class, 'postStep3'])->name('enrollments.post.step3');
+        
         Route::get('/enroll/review', [EnrollmentController::class, 'showStep4'])->name('enrollments.step4');
         Route::post('/enroll/store', [EnrollmentController::class, 'store'])->name('enrollments.store');
         Route::get('/enroll/success', [EnrollmentController::class, 'success'])->name('enrollments.success');
@@ -47,11 +47,16 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('can:registrar-access')->group(function () {
         Route::get('/records', [AdminController::class, 'allRecords'])->name('admin.manage_enrollments');
         Route::get('/records/list', [AdminController::class, 'allRecords'])->name('admin.records.index');
-       
-        Route::post('/records/{id}/approve', [AdminController::class, 'approve'])->name('admin.records.approve');
-        Route::post('/records/{id}/reject', [AdminController::class, 'reject'])->name('admin.records.reject'); // ADDED THIS
         
-        Route::get('/records/{id}/edit', [AdminController::class, 'edit'])->name('admin.records.edit'); // MATCHED NAME TO CONTROLLER
+        // --- NEW: Approved Records & Deletion Logic ---
+        Route::get('/records/approved', [AdminController::class, 'approvedRecords'])->name('admin.enrollments.approved');
+        Route::delete('/records/{id}', [AdminController::class, 'destroy'])->name('admin.records.destroy');
+        // ----------------------------------------------
+
+        Route::post('/records/{id}/approve', [AdminController::class, 'approve'])->name('admin.records.approve');
+        Route::post('/records/{id}/reject', [AdminController::class, 'reject'])->name('admin.records.reject'); 
+        
+        Route::get('/records/{id}/edit', [AdminController::class, 'edit'])->name('admin.records.edit'); 
         Route::patch('/records/{id}/update', [AdminController::class, 'updateRecord'])->name('admin.records.update');
 
         Route::resource('courses', CourseController::class)->names(['create' => 'admin.courses.create','store'  => 'admin.courses.store',]);

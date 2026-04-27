@@ -204,7 +204,7 @@
                 Easily settle your UM Online Enrollment payments—including tuition, ID, 
                 and more—anytime, anywhere with our secure portal.
             </p>
-            <a href="{{ route('enrollments.step1') }}" class="btn-maroon">Enroll Now</a>
+            <a href="{{ route('enrollments.step3') }}" class="btn-maroon">Enroll Now</a>
         </div>
     </div>
 </section>

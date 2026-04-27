@@ -26,7 +26,7 @@
             background: #fff;
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            overflow: visible; /* CRITICAL: Allows dropdowns to show */
+            overflow: visible; 
         }
 
         .card-header {
@@ -80,7 +80,12 @@
             cursor: pointer;
         }
 
-        /* Professional Table Style */
+        /* Styling for disabled/full options */
+        select option:disabled {
+            color: #ccc;
+            background-color: #f9f9f9;
+        }
+
         .subject-table {
             width: 100%;
             border-collapse: collapse;
@@ -119,7 +124,6 @@
             display: inline-block;
         }
 
-        /* Action Buttons */
         .actions {
             display: flex;
             justify-content: flex-end;
@@ -214,10 +218,21 @@
                         <td>{{ $subject->subject_name }}</td>
                         <td><span class="badge-schedule">{{ $subject->schedule }}</span></td>
                         <td>
-                            <select name="subjects[{{ $subject->detail_id }}]" style="padding: 8px; font-size: 0.8rem; border-color: #eee; background: #fafafa;">
+                            {{-- Integrated Real-Time Slot Logic --}}
+                            <select name="sections[{{ $subject->detail_id }}]" style="padding: 8px; font-size: 0.8rem; border-color: #eee; background: #fafafa;">
                                 @foreach($allSections->where('subject_id', $subject->subject_id) as $section)
-                                    <option value="{{ $section->section_id }}" {{ $subject->section_id == $section->section_id ? 'selected' : '' }}>
-                                        {{ $section->schedule }} (Slots: {{ $section->capacity }})
+                                    @php
+                                        // A section is full if slots are 0 and it's NOT the one currently assigned to this student
+                                        $isFull = ($section->remaining_slots <= 0 && $subject->section_id != $section->section_id);
+                                    @endphp
+                                    <option value="{{ $section->section_id }}" 
+                                        {{ $subject->section_id == $section->section_id ? 'selected' : '' }}
+                                        {{ $isFull ? 'disabled' : '' }}>
+                                        
+                                        {{ $section->schedule }} 
+                                        (Slots: {{ $section->remaining_slots > 0 ? $section->remaining_slots : '0' }})
+                                        
+                                        @if($isFull) - [FULL] @endif
                                     </option>
                                 @endforeach
                             </select>

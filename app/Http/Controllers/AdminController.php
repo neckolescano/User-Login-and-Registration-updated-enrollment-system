@@ -155,6 +155,19 @@ class AdminController extends Controller
         return redirect()->back()->with('error', 'Record not found.');
     }
 
+    public function approvedRecords()
+    {
+    $enrollments = DB::table('enrollments')
+        ->join('students', 'enrollments.student_id', '=', 'students.student_id')
+        ->join('courses', 'students.course_id', '=', 'courses.course_id')
+        ->where('enrollments.status', 'approved') 
+        ->select('enrollments.*', 'students.first_name', 'students.last_name', 'students.year_level', 'courses.course_name')
+        ->orderBy('enrollments.updated_at', 'desc') // Show most recently approved first
+        ->get();
+
+    return view('admin.approved_enrollments', compact('enrollments'));
+    }
+
     public function reject($id)
     {
         DB::table('enrollments')
@@ -162,6 +175,16 @@ class AdminController extends Controller
             ->update(['status' => 'rejected']);
 
         return redirect()->back()->with('error', 'Enrollment has been rejected.');
+    }
+
+    public function destroy($id)
+    {
+        $enrollment = Enrollment::find($id);
+        if ($enrollment) {
+            $enrollment->delete(); // This removes the record, allowing the student to re-enroll
+            return redirect()->back()->with('success', 'Enrollment record has been deleted.');
+        }
+        return redirect()->back()->with('error', 'Record not found.');
     }
 
     public function edit($id)
@@ -190,8 +213,26 @@ class AdminController extends Controller
             ->get();
 
         $allSections = DB::table('sections')
-            ->join('subjects', 'sections.subject_id', '=', 'subjects.subject_id')
-            ->get();
+        ->join('subjects', 'sections.subject_id', '=', 'subjects.subject_id')
+        ->leftJoin('enrollment_details', 'sections.section_id', '=', 'enrollment_details.section_id')
+        ->select(
+            'sections.section_id',
+            'sections.subject_id',
+            'sections.schedule',
+            'sections.capacity',
+            'subjects.subject_code',
+            'subjects.subject_name',
+            DB::raw('sections.capacity - COUNT(enrollment_details.detail_id) as remaining_slots')
+        )
+        ->groupBy(
+            'sections.section_id', 
+            'sections.subject_id', 
+            'sections.schedule', 
+            'sections.capacity', 
+            'subjects.subject_code', 
+            'subjects.subject_name'
+        )
+        ->get();
 
         return view('admin.edit_enrollment', compact('record', 'enrolledSubjects', 'allSections'));
     }
@@ -206,7 +247,7 @@ class AdminController extends Controller
         $enrollment = DB::table('enrollments')->where('enrollment_id', $id)->first();
 
         if ($enrollment) {
-            // Update the enrollment (Semester)
+            // Update the enrollment
             DB::table('enrollments')
                 ->where('enrollment_id', $id)
                 ->update([
@@ -214,7 +255,7 @@ class AdminController extends Controller
                     'updated_at' => now()
                 ]);
 
-            // Update the student profile (Year Level)
+            // Update the student profile
             DB::table('students')
                 ->where('student_id', $enrollment->student_id)
                 ->update([
@@ -222,9 +263,20 @@ class AdminController extends Controller
                     'updated_at' => now()
                 ]);
 
+            // Handle Section/Schedule Changes if any (Looping through provided sections)
+            if ($request->has('sections')) {
+                foreach ($request->sections as $detail_id => $new_section_id) {
+                    DB::table('enrollment_details')
+                        ->where('detail_id', $detail_id)
+                        ->update(['section_id' => $new_section_id]);
+                }
+            }
+
             return redirect()->route('admin.manage_enrollments')->with('success', 'Enrollment updated successfully!');
         }
 
         return redirect()->back()->with('error', 'Record not found.');
     }
+
+
 }

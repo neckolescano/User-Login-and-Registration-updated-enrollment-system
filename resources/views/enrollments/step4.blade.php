@@ -160,11 +160,11 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <span class="review-label">Semester</span>
-                                <span class="review-value">{{ $step1['semester'] }}</span>
+                                <span class="review-value">{{ $period['semester'] }}</span>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <span class="review-label">School Year</span>
-                                <span class="review-value">{{ $step1['school_year'] }}</span>
+                                <span class="review-value">{{ $period['school_year'] }}</span>
                             </div>
                         </div>
                     </div>

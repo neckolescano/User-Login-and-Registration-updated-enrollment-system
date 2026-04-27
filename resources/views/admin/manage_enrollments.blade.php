@@ -1,119 +1,95 @@
 @extends('layouts.app')
 
-@push('styles')
+@section('content')
+<div class="container">
+    <div class="mb-5 d-flex justify-content-between align-items-end">
+        <div>
+            <h2 style="font-family: 'Orbitron'; color: #800000; font-weight: 700;">
+                PENDING <span style="color: #d4af37;">ENROLLMENTS</span>
+            </h2>
+            <p class="text-muted mb-0">Review and verify student enrollment requests for the current period.</p>
+        </div>
+        <a href="{{ route('admin.enrollments.approved') }}" class="btn btn-sm text-white" style="background-color: #800000; border-radius: 10px; font-family: 'Orbitron';">
+            View Approved List →
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm" style="border-radius: 20px; overflow: hidden; background: #fff;">
+        <div class="card-header bg-white py-3 border-0">
+            <h5 class="mb-0 fw-bold" style="font-family: 'Orbitron'; color: #800000;">Enrollment Requests</h5>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="bg-light">
+                    <tr class="small text-muted text-uppercase" style="letter-spacing: 1px;">
+                        <th class="px-4 py-3">Student Name</th>
+                        <th class="px-4 py-3">Course & Year</th>
+                        <th class="px-4 py-3">Date Submitted</th>
+                        <th class="px-4 py-3 text-center">Status</th>
+                        <th class="px-4 py-3 text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($enrollments as $record)
+                    <tr style="transition: background 0.2s;">
+                        <td class="px-4 py-3 fw-bold" style="color: #333;">
+                            {{ $record->first_name }} {{ $record->last_name }}
+                        </td>
+                        <td class="px-4 py-3">
+                            <div class="fw-bold small">{{ $record->course_name }}</div>
+                            <div class="text-muted small">Year Level: {{ $record->year_level }}</div>
+                        </td>
+                        <td class="px-4 py-3 small text-muted">
+                            {{ date('M d, Y', strtotime($record->created_at)) }}
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <span class="badge rounded-pill px-3 py-2" style="background-color: rgba(212, 175, 55, 0.1); color: #856404; border: 1px solid #d4af37; font-size: 0.75rem;">
+                                PENDING
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 text-center">
+                            <div class="d-flex justify-content-center gap-2">
+                                <form action="{{ route('admin.records.approve', $record->enrollment_id) }}" method="POST" class="m-0">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm text-white px-3" style="background-color: #800000; border-radius: 8px; font-size: 0.8rem;">
+                                        Approve
+                                    </button>
+                                </form>
+
+                                <a href="{{ route('admin.records.edit', $record->enrollment_id) }}" 
+                                   class="btn btn-sm btn-outline-primary px-3" 
+                                   style="border-radius: 8px; font-size: 0.8rem;">
+                                   Edit
+                                </a>
+
+                                <form action="{{ route('admin.records.reject', $record->enrollment_id) }}" method="POST" class="m-0" onsubmit="return confirm('Reject this enrollment?')">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-outline-danger px-3" style="border-radius: 8px; font-size: 0.8rem;">
+                                        Reject
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted">No pending enrollment requests found.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 <style>
-    .admin-content-wrapper {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 0 4%; /* This creates the left/right space for the whole page */
+    /* Styling consistency with Approved UI */
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
     }
-    /* Card Container */
-    .records-card {
-        background: white;
-        border-radius: 20px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.03);
-        padding: 40px;
-        margin-top: 30px;
-    }
-
-    /* Table Formatting */
-    .um-table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0 15px; /* Adds space between rows */
-    }
-
-    .um-table th {
-        font-family: 'Orbitron', sans-serif;
-        font-size: 0.8rem;
-        color: var(--um-maroon);
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        padding: 10px 20px;
-        border: none;
-        text-align: left;
-    }
-
-    .um-table td {
-        padding: 20px;
-        background-color: #fcfcfc;
-        border-top: 1px solid #eee;
-        border-bottom: 1px solid #eee;
-    }
-
-    /* Round the corners of the rows */
-    .um-table tr td:first-child { border-left: 1px solid #eee; border-radius: 12px 0 0 12px; }
-    .um-table tr td:last-child { border-right: 1px solid #eee; border-radius: 0 12px 12px 0; }
-
-    /* Badge & Button Styling */
-    .status-badge {
-        background: #fff3cd;
-        color: #856404;
-        padding: 6px 15px;
-        border-radius: 8px;
-        font-weight: 700;
-        font-size: 0.75rem;
-    }
-
-    .btn-approve {
-        background: var(--um-maroon);
-        color: white !important;
-        border: none;
-        padding: 10px 25px;
-        border-radius: 8px;
-        font-family: 'Orbitron', sans-serif;
-        font-weight: 700;
-        font-size: 0.7rem;
-        transition: 0.3s;
-    }
-    
-    .btn-approve:hover {
-        background: #600000;
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(128, 0, 0, 0.2);
+    .table td {
+        border-bottom: 1px solid #f1f1f1;
     }
 </style>
-@endpush
-
-@section('content')
-<div class="admin-content-wrapper">
-    <table class="um-table">
-        <thead>
-            <tr>
-                <th style="width: 25%;">Student Name</th>
-                <th style="width: 30%;">Course</th>
-                <th style="width: 15%;">Year Level</th>
-                <th style="width: 15%;">Date Submitted</th>
-                <th style="width: 15%;">Status</th>
-                <th style="text-align: center;">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($enrollments as $record)
-            <tr>
-                <td class="fw-bold">{{ $record->first_name }} {{ $record->last_name }}</td>
-                <td>{{ $record->course_name }}</td>
-                <td>{{ $record->year_level }}</td>
-                <td>{{ date('M d, Y', strtotime($record->created_at)) }}</td>
-                <td>
-                    <span class="status-badge">PENDING</span>
-                </td>
-                <td style="text-align: center; display: flex; gap: 5px; justify-content: center;">
-                    <form action="{{ route('admin.records.approve', $record->enrollment_id) }}" method="POST">
-                        @csrf
-                        <button type="submit" class="btn btn-sm btn-success">APPROVE</button>
-                    </form>
-
-                    <a href="{{ route('admin.records.edit', $record->enrollment_id) }}" class="btn btn-sm btn-primary">EDIT</a>
-
-                    <form action="{{ route('admin.records.reject', $record->enrollment_id) }}" method="POST" onsubmit="return confirm('Are you sure you want to reject this enrollment?')">
-                        @csrf
-                        <button type="submit" class="btn btn-sm btn-danger">REJECT</button>
-                    </form>
-                </td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-</div>
 @endsection
