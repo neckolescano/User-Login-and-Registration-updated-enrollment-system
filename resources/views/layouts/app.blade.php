@@ -198,17 +198,24 @@
         </a>
         
         @auth
-            @if(Auth::user()->role === 'Student')
-                <a href="{{ route('enrollments.index') }}" class="nav-link {{ Request::routeIs('enrollments.index') ? 'active' : '' }}">MY RECORDS</a>
-                <a href="{{ route('enrollments.step3') }}" class="nav-link {{ Request::routeIs('enrollments.step1') ? 'active' : '' }}">ENROLL NOW</a>
+           {{-- 2. REGISTRAR ONLY --}}
+            @if(Auth::user()->role === 'Registrar Staff')
+                <a href="{{ route('registrar.pending') }}" class="nav-link {{ Request::routeIs('registrar.pending') || Request::routeIs('registrar.verify') ? 'active' : '' }}">PENDING VERIFICATION</a>
             @endif
 
-            @can('registrar-access')
+            {{-- 3. STUDENT ONLY --}}
+            @if(Auth::user()->role === 'Student')
+                <a href="{{ route('enrollments.index') }}" class="nav-link {{ Request::routeIs('enrollments.index') ? 'active' : '' }}">MY RECORDS</a>
+                <a href="{{ route('enrollments.step3') }}" class="nav-link {{ Request::routeIs('enrollments.step3') ? 'active' : '' }}">ENROLL NOW</a>
+            @endif
+
+            {{-- 4. SHARED MANAGEMENT (Admin and Registrar) --}}
+            @can('registrar-access') 
                 <a href="{{ route('admin.manage_enrollments') }}" class="nav-link {{ Request::is('records*') ? 'active' : '' }}">MANAGE ENROLLMENTS</a>
             @endcan
 
             {{-- CLEAN ADD DROPDOWN FOR ADMIN/REGISTRAR --}}
-            @can('registrar-access')
+            @can('admin-only')
                 <div class="dropdown">
                     <a href="#" class="nav-link">ADD +</a>
                     <div class="dropdown-menu">

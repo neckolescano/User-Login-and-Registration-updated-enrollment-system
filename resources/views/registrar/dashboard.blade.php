@@ -7,7 +7,7 @@
         --um-gold: #d4af37;
     }
 
-    /* Main container matching the staff layout */
+    /* Main container matching the admin layout */
     .admin-main-container { 
         padding-top: 40px; 
         padding-bottom: 80px; 
@@ -44,8 +44,8 @@
         border-left: 5px solid var(--um-gold);
     }
 
-    .stat-border-green {
-        border-left: 5px solid #27ae60;
+    .stat-border-maroon {
+        border-left: 5px solid var(--um-maroon);
     }
 
     /* Tech-style Labels */
@@ -88,74 +88,68 @@
 <div class="admin-main-container">
     <div class="container">
         
-        {{-- Page Header - Centered for Consistency --}}
+        {{-- Page Header --}}
         <div class="text-center mb-5">
-            <h1 class="admin-page-title">ADMIN <span style="color: var(--um-gold);">DASHBOARD</span></h1>
-            <p class="text-muted">University Enrollment Overview & Statistics 2025-2026</p>
+            <h1 class="admin-page-title">REGISTRAR <span style="color: var(--um-gold);">DASHBOARD</span></h1>
+            <p class="text-muted">Verification and Enrollment Management System 2025-2026</p>
         </div>
 
         {{-- Statistics Row --}}
         <div class="row g-4 mb-5">
-            {{-- Total Enrolled Stat --}}
             <div class="col-md-6">
-                <div class="stat-card stat-border-green">
-                    <span class="input-label">Total Enrolled</span>
-                    <h2 class="fw-bold my-2" style="color: #27ae60;">{{ $totalEnrolled ?? '0' }}</h2>
-                    <p class="text-muted small mb-3">Confirmed academic records officially processed.</p>
+                <div class="stat-card stat-border-gold">
+                    <span class="input-label">Pending Verification</span>
+                    <h2 class="fw-bold my-2" style="color: var(--um-gold);">{{ $pendingCount ?? '0' }}</h2>
+                    <p class="text-muted small mb-3">Requests requiring registrar staff review.</p>
+                    <a href="{{ route('registrar.pending') }}" class="action-link">
+                        REVIEW PENDING LIST &rsaquo;
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="stat-card stat-border-maroon">
+                    <span class="input-label">Approved Students</span>
+                    <h2 class="fw-bold my-2" style="color: var(--um-maroon);">{{ $approvedCount ?? '0' }}</h2>
+                    <p class="text-muted small mb-3">Verified and officially enrolled records.</p>
                     <a href="{{ route('admin.enrollments.approved') }}" class="action-link">
                         VIEW MASTER LIST &rsaquo;
                     </a>
                 </div>
             </div>
-
-            {{-- Pending Stat --}}
-            <div class="col-md-6">
-                <div class="stat-card stat-border-gold">
-                    <span class="input-label">Pending Approvals</span>
-                    <h2 class="fw-bold my-2" style="color: var(--um-gold);">{{ $pendingApprovals ?? '0' }}</h2>
-                    <p class="text-muted small mb-3">Requests requiring registrar verification.</p>
-                    <a href="{{ route('admin.manage_enrollments') }}" class="action-link">
-                        MANAGE ENROLLMENTS &rsaquo;
-                    </a>
-                </div>
-            </div>
         </div>
 
-        {{-- Popular Courses Row --}}
+        {{-- Recent Activity Table --}}
         <div class="row">
             <div class="col-12">
-                <h4 class="input-label mb-3" style="font-size: 0.9rem;">Most Popular Courses</h4>
+                <h4 class="input-label mb-3" style="font-size: 0.9rem;">Recently Processed Enrollments</h4>
                 <div class="content-card">
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0">
                             <thead>
                                 <tr>
-                                    <th class="input-label border-0">Course Name</th>
-                                    <th class="input-label border-0 text-center">Enrollment Count</th>
+                                    <th class="input-label border-0">Student Name</th>
+                                    <th class="input-label border-0">Course</th>
+                                    <th class="input-label border-0">Year Level</th>
                                     <th class="input-label border-0 text-end">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse($popularCourses as $course)
+                                @forelse($recentEnrollments as $enrollment)
                                 <tr>
-                                    <td class="fw-bold py-3 text-uppercase" style="color: var(--um-maroon);">
-                                        {{ $course->course_name }}
-                                    </td>
-                                    <td class="text-center">
-                                        <span class="badge rounded-pill bg-light text-dark px-3 py-2 border" style="font-family: 'Orbitron'; font-size: 0.75rem;">
-                                            {{ $course->student_count }} STUDENTS
-                                        </span>
-                                    </td>
+                                    <td class="fw-bold py-3">{{ $enrollment->student_name }}</td>
+                                    <td class="small text-muted">{{ $enrollment->course_name }}</td>
+                                    <td class="small">{{ $enrollment->year_level }}</td>
                                     <td class="text-end">
-                                        <a href="{{ route('courses.index') }}" class="btn btn-sm btn-outline-dark fw-bold" style="font-size: 0.65rem; border-radius: 8px;">
-                                            COURSE INFO
+                                        <a href="#" class="btn btn-sm btn-outline-dark fw-bold" style="font-size: 0.65rem; border-radius: 8px;">
+                                            DETAILS
                                         </a>
                                     </td>
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="3" class="text-center py-4 text-muted">
-                                        No course data available yet.
+                                    <td colspan="4" class="text-center py-4 text-muted">
+                                        No recent activity to display.
                                     </td>
                                 </tr>
                                 @endforelse

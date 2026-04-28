@@ -22,8 +22,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role',   // Added this
-        'status', // Added this
+        'role',   
+        'status', 
     ];
 
     /**
@@ -47,6 +47,26 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Role Check Helpers
+     * Matches the values set in your phpMyAdmin
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'Administrator';
+    }
+
+    public function isRegistrar(): bool
+    {
+        // Must match "Registrar Staff" exactly as seen in your DB
+        return $this->role === 'Registrar Staff';
+    }
+
+    public function isStudent(): bool
+    {
+        return $this->role === 'Student';
     }
 
     /**

@@ -19,8 +19,8 @@ class AdminController extends Controller
     */
     public function dashboard()
     {
-        $totalEnrolled = DB::table('enrollments')->where('status', 'approved')->count();
-        $pendingApprovals = DB::table('enrollments')->where('status', 'pending')->count();
+        $totalEnrolled = Enrollment::where('status', 'Approved')->count();
+        $pendingApprovals = Enrollment::where('status', 'Pending')->count();
 
         $popularCourses = DB::table('courses')
             ->join('students', 'courses.course_id', '=', 'students.course_id')
@@ -118,125 +118,116 @@ class AdminController extends Controller
     }
 
     /* |--------------------------------------------------------------------------
-    | ENROLLMENT VERIFICATION & APPROVAL
+    | ENROLLMENT RECORDS (FIXED METHODS)
     |--------------------------------------------------------------------------
     */
-   public function allRecords()
+
+    /**
+     * List all Pending Enrollments
+     */
+    public function allRecords()
     {
-        $enrollments = DB::table('enrollments')
-            ->join('students', 'enrollments.student_id', '=', 'students.student_id')
-            ->join('courses', 'students.course_id', '=', 'courses.course_id')
-            ->where('enrollments.status', 'pending') 
-            ->select(
-                'enrollments.*', 
-                'students.first_name', 
-                'students.last_name', 
-                'students.year_level',
-                'courses.course_name'
-            )
-            ->orderBy('enrollments.created_at', 'desc')
+        // Using Eloquent with Eager Loading to fix the "Undefined student_name" error
+        $enrollments = Enrollment::with(['student.course'])
+            ->where('status', 'Pending') 
+            ->orderBy('created_at', 'desc')
             ->get();
 
         return view('admin.manage_enrollments', compact('enrollments'));
     }
 
-   public function approve($id)
+    /**
+     * List all Approved Enrollments
+     */
+    public function approvedRecords()
     {
-        $enrollment = DB::table('enrollments')->where('enrollment_id', $id)->first();
+        $enrollments = Enrollment::with(['student.course'])
+            ->where('status', 'Approved') 
+            ->orderBy('updated_at', 'desc')
+            ->get();
+
+        return view('admin.approved_enrollments', compact('enrollments'));
+    }
+
+    /**
+     * Approve Enrollment
+     */
+    public function approve($id)
+    {
+        $enrollment = Enrollment::find($id);
 
         if ($enrollment) {
-            DB::table('enrollments')
-                ->where('enrollment_id', $id)
-                ->update(['status' => 'approved']);
-
+            $enrollment->update(['status' => 'Approved']);
             return redirect()->back()->with('success', 'Enrollment approved successfully!');
         }
 
         return redirect()->back()->with('error', 'Record not found.');
     }
 
-    public function approvedRecords()
-    {
-    $enrollments = DB::table('enrollments')
-        ->join('students', 'enrollments.student_id', '=', 'students.student_id')
-        ->join('courses', 'students.course_id', '=', 'courses.course_id')
-        ->where('enrollments.status', 'approved') 
-        ->select('enrollments.*', 'students.first_name', 'students.last_name', 'students.year_level', 'courses.course_name')
-        ->orderBy('enrollments.updated_at', 'desc') // Show most recently approved first
-        ->get();
-
-    return view('admin.approved_enrollments', compact('enrollments'));
-    }
-
+    /**
+     * Reject Enrollment
+     */
     public function reject($id)
     {
-        DB::table('enrollments')
-            ->where('enrollment_id', $id)
-            ->update(['status' => 'rejected']);
-
-        return redirect()->back()->with('error', 'Enrollment has been rejected.');
+        $enrollment = Enrollment::find($id);
+        if ($enrollment) {
+            $enrollment->update(['status' => 'Rejected']);
+            return redirect()->back()->with('error', 'Enrollment has been rejected.');
+        }
+        return redirect()->back()->with('error', 'Record not found.');
     }
 
+    /**
+     * Delete Enrollment Record
+     */
     public function destroy($id)
     {
         $enrollment = Enrollment::find($id);
         if ($enrollment) {
-            $enrollment->delete(); // This removes the record, allowing the student to re-enroll
+            $enrollment->delete(); 
             return redirect()->back()->with('success', 'Enrollment record has been deleted.');
         }
         return redirect()->back()->with('error', 'Record not found.');
     }
 
+    /* |--------------------------------------------------------------------------
+    | EDIT & UPDATE RECORD
+    |--------------------------------------------------------------------------
+    */
     public function edit($id)
     {
-        $record = DB::table('enrollments')
-            ->join('students', 'enrollments.student_id', '=', 'students.student_id')
-            ->where('enrollment_id', $id)
-            ->first();
+        // We eager load details -> section -> subject to prevent empty table rows
+        $record = Enrollment::with(['student.course', 'details.section.subject'])->findOrFail($id);
 
-        if (!$record) {
-            return redirect()->back()->with('error', 'Record not found.');
-        }
+        // This is the collection of enrolled subjects (EnrollmentDetail)
+        $enrolledSubjects = $record->details;
 
-        $enrolledSubjects = DB::table('enrollment_details')
-            ->join('sections', 'enrollment_details.section_id', '=', 'sections.section_id')
+        // Get all available sections with calculated remaining slots
+        $allSections = DB::table('sections')
             ->join('subjects', 'sections.subject_id', '=', 'subjects.subject_id')
-            ->where('enrollment_details.enrollment_id', $id)
+            ->leftJoin('enrollment_details', 'sections.section_id', '=', 'enrollment_details.section_id')
             ->select(
-                'enrollment_details.detail_id', 
-                'subjects.subject_name', 
-                'subjects.subject_code', 
-                'subjects.subject_id', // ADDED THIS LINE
+                'sections.section_id',
+                'sections.subject_id',
+                'sections.schedule',
+                'sections.capacity',
+                'subjects.subject_code',
+                'subjects.subject_name',
+                DB::raw('sections.capacity - COUNT(enrollment_details.detail_id) as remaining_slots')
+            )
+            ->groupBy(
+                'sections.section_id', 
+                'sections.subject_id', 
                 'sections.schedule', 
-                'sections.section_id'
+                'sections.capacity', 
+                'subjects.subject_code', 
+                'subjects.subject_name'
             )
             ->get();
 
-        $allSections = DB::table('sections')
-        ->join('subjects', 'sections.subject_id', '=', 'subjects.subject_id')
-        ->leftJoin('enrollment_details', 'sections.section_id', '=', 'enrollment_details.section_id')
-        ->select(
-            'sections.section_id',
-            'sections.subject_id',
-            'sections.schedule',
-            'sections.capacity',
-            'subjects.subject_code',
-            'subjects.subject_name',
-            DB::raw('sections.capacity - COUNT(enrollment_details.detail_id) as remaining_slots')
-        )
-        ->groupBy(
-            'sections.section_id', 
-            'sections.subject_id', 
-            'sections.schedule', 
-            'sections.capacity', 
-            'subjects.subject_code', 
-            'subjects.subject_name'
-        )
-        ->get();
-
         return view('admin.edit_enrollment', compact('record', 'enrolledSubjects', 'allSections'));
     }
-    // NEW: Handles the form submission from the edit page
+
     public function updateRecord(Request $request, $id)
     {
         $request->validate([
@@ -244,26 +235,22 @@ class AdminController extends Controller
             'semester' => 'required|string',
         ]);
 
-        $enrollment = DB::table('enrollments')->where('enrollment_id', $id)->first();
+        $enrollment = Enrollment::findOrFail($id);
 
-        if ($enrollment) {
-            // Update the enrollment
-            DB::table('enrollments')
-                ->where('enrollment_id', $id)
-                ->update([
-                    'semester' => $request->semester,
-                    'updated_at' => now()
-                ]);
+        DB::transaction(function () use ($request, $enrollment) {
+            // Update Enrollment semester
+            $enrollment->update([
+                'semester' => $request->semester,
+            ]);
 
-            // Update the student profile
-            DB::table('students')
-                ->where('student_id', $enrollment->student_id)
-                ->update([
+            // Update Student Year Level through relationship
+            if ($enrollment->student) {
+                $enrollment->student->update([
                     'year_level' => $request->year_level,
-                    'updated_at' => now()
                 ]);
+            }
 
-            // Handle Section/Schedule Changes if any (Looping through provided sections)
+            // Handle Section Changes in enrollment_details
             if ($request->has('sections')) {
                 foreach ($request->sections as $detail_id => $new_section_id) {
                     DB::table('enrollment_details')
@@ -271,12 +258,8 @@ class AdminController extends Controller
                         ->update(['section_id' => $new_section_id]);
                 }
             }
+        });
 
-            return redirect()->route('admin.manage_enrollments')->with('success', 'Enrollment updated successfully!');
-        }
-
-        return redirect()->back()->with('error', 'Record not found.');
+        return redirect()->route('admin.manage_enrollments')->with('success', 'Enrollment updated successfully!');
     }
-
-
 }

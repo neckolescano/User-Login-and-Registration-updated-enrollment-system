@@ -1,84 +1,197 @@
 @extends('layouts.app')
 
-@section('content')
-<div class="container">
-    <div class="mb-5">
-        <h2 style="font-family: 'Orbitron'; color: #800000; font-weight: 700;">APPROVED <span style="color: #d4af37;">ENROLLMENTS</span></h2>
-        <p class="text-muted">List of students officially enrolled for the 2025-2026 academic period.</p>
-    </div>
+@push('styles')
+<style>
+    :root {
+        --um-maroon: #800000;
+        --um-gold: #d4af37;
+        --bg-light: #f4f7f6;
+    }
 
-    <div class="card border-0 shadow-sm" style="border-radius: 20px; overflow: hidden; background: #fff;">
-        <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
-            <h5 class="mb-0 fw-bold" style="font-family: 'Orbitron'; color: #800000;">Confirmed Records</h5>
-            <a href="{{ route('dashboard') }}" class="btn btn-sm text-white" style="background-color: #800000; border-radius: 10px;">Back to Dashboard</a>
-        </div>
-        
-        <div class="table-responsive">
-            <table class="table align-middle mb-0">
-                <thead class="bg-light">
-                    <tr class="small text-muted text-uppercase" style="letter-spacing: 1px;">
-                        <th class="px-4 py-3">Student Name</th>
-                        <th class="px-4 py-3">Course & Year</th>
-                        <th class="px-4 py-3">SY / Semester</th>
-                        <th class="px-4 py-3 text-center">Status</th>
-                        <th class="px-4 py-3 text-center">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($enrollments as $enrollment)
-                    <tr style="transition: background 0.2s;">
-                        <td class="px-4 py-3">
-                            <span class="fw-bold" style="color: #333;">{{ $enrollment->first_name }} {{ $enrollment->last_name }}</span>
-                        </td>
-                        <td class="px-4 py-3">
-                            <div class="fw-bold small">{{ $enrollment->course_name }}</div>
-                            <div class="text-muted small">Year Level: {{ $enrollment->year_level }}</div>
-                        </td>
-                        <td class="px-4 py-3 small text-muted">
-                            {{ $enrollment->school_year }}<br>
-                            <span class="fw-bold" style="color: #800000;">{{ $enrollment->semester }}</span>
-                        </td>
-                        <td class="px-4 py-3 text-center">
-                            <span class="badge rounded-pill px-3 py-2" style="background-color: rgba(46, 204, 113, 0.1); color: #27ae60; border: 1px solid #2ecc71; font-size: 0.75rem;">
-                                APPROVED
-                            </span>
-                        </td>
-                        <td class="px-4 py-3 text-center">
-                            <div class="d-flex justify-content-center gap-2">
-                                <a href="{{ route('admin.records.edit', $enrollment->enrollment_id) }}" 
-                                   class="btn btn-sm btn-outline-primary" 
-                                   style="border-radius: 8px; font-size: 0.8rem;">
-                                   Edit
-                                </a>
-                                
-                                <form action="{{ route('admin.records.destroy', $enrollment->enrollment_id) }}" method="POST" onsubmit="return confirm('WARNING: This will revoke the student\'s official enrollment status. Proceed?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" style="border-radius: 8px; font-size: 0.8rem;">
-                                        Revoke
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="5" class="text-center py-5 text-muted">No confirmed enrollment records found for this period.</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
+    /* Main container consistency */
+    .admin-main-container { 
+        padding-top: 40px; 
+        padding-bottom: 80px; 
+    }
+
+    .admin-page-title {
+        font-family: 'Orbitron', sans-serif;
+        color: var(--um-maroon);
+        font-weight: 700;
+        font-size: 2.5rem;
+        text-align: center;
+        margin-bottom: 10px;
+        letter-spacing: 2px;
+    }
+
+    /* Table styling to match the clean integrated look */
+    .admin-card {
+        background: white;
+        border-radius: 30px;
+        padding: 40px;
+        margin-top: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+
+    .custom-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 10px;
+    }
+
+    .admin-table-label {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 0.75rem;
+        color: #bbb;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        border-bottom: 2px solid #f8f8f8;
+        padding-bottom: 15px;
+        font-weight: 700;
+    }
+
+    .student-name-text {
+        font-weight: 700;
+        color: #333;
+        font-size: 1rem;
+    }
+
+    .course-info-box {
+        font-size: 0.85rem;
+        color: #777;
+    }
+
+    .status-badge-approved {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 0.7rem;
+        padding: 6px 15px;
+        border-radius: 50px;
+        background: #f0fff4;
+        color: #2ecc71;
+        border: 1px solid #2ecc71;
+        text-transform: uppercase;
+        font-weight: 700;
+    }
+
+    /* Vertical Action Stack */
+    .action-cell-stack {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-edit-sm {
+        background: #f8f9fa;
+        color: #666;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 0.7rem;
+        font-weight: 700;
+        border-radius: 50px;
+        padding: 8px 25px;
+        text-transform: uppercase;
+        border: 1px solid #eee;
+        transition: 0.3s;
+        width: 130px;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-edit-sm:hover {
+        background: #eee;
+        color: #333;
+        transform: translateY(-2px);
+    }
+
+    .btn-revoke-link {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 0.65rem;
+        color: #e74c3c;
+        background: none;
+        border: none;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.3s;
+        text-transform: uppercase;
+    }
+
+    .btn-revoke-link:hover {
+        opacity: 0.7;
+        text-decoration: underline;
+    }
+</style>
+@endpush
+
+@section('content')
+<div class="admin-main-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-11">
+                
+                <h1 class="admin-page-title">Master Enrollment List</h1>
+                <p class="text-center text-muted mb-5">Official database of confirmed academic records for the current period.</p>
+
+                <div class="admin-card">
+                    <div class="table-responsive">
+                        <table class="custom-table table table-borderless align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="admin-table-label text-center" style="width: 25%;">Student Name</th>
+                                    <th class="admin-table-label text-center" style="width: 25%;">Course & Year</th>
+                                    <th class="admin-table-label text-center" style="width: 20%;">SY / Semester</th>
+                                    <th class="admin-table-label text-center" style="width: 15%;">Status</th>
+                                    <th class="admin-table-label text-center" style="width: 15%;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($enrollments as $enrollment)
+                                <tr>
+                                    <td class="text-center py-4">
+                                        <div class="student-name-text">{{ $enrollment->student->first_name }} {{ $enrollment->student->last_name }}</div>
+                                    </td>
+                                    <td class="text-center py-4">
+                                        <div class="course-info-box">
+                                            <strong style="color: #444;">{{ $enrollment->student->course->course_name ?? 'N/A' }}</strong><br>
+                                            Year Level: {{ $enrollment->student->year_level }}
+                                        </div>
+                                    </td>
+                                    <td class="text-center py-4 text-muted small">
+                                        <span class="fw-600">2025-2026</span><br>
+                                        <span class="fw-bold" style="color: var(--um-maroon); font-family: 'Orbitron';">{{ $enrollment->semester }}</span>
+                                    </td>
+                                    <td class="text-center py-4">
+                                        <span class="status-badge-approved">approved</span>
+                                    </td>
+                                    <td class="text-center py-4">
+                                        <div class="action-cell-stack">
+                                            <a href="{{ route('admin.records.edit', $enrollment->enrollment_id) }}" class="btn-edit-sm">Edit Record</a>
+                                            
+                                            <form action="{{ route('admin.records.destroy', $enrollment->enrollment_id) }}" method="POST" onsubmit="return confirm('Revoke enrollment? This will remove the student from the master list.')">
+                                                @csrf 
+                                                @method('DELETE')
+                                                <button type="submit" class="btn-revoke-link">Revoke</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="5" class="text-center py-5 text-muted" style="font-family: 'Orbitron';">No approved records found.</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="text-center mt-5">
+                    <a href="{{ route('admin.manage_enrollments') }}" class="text-muted small" style="text-decoration: none; font-family: 'Orbitron'; letter-spacing: 1px;">
+                        &lsaquo; RETURN TO PENDING REQUESTS
+                    </a>
+                </div>
+
+            </div>
         </div>
     </div>
 </div>
-
-<style>
-    /* Styling to match your existing dashboard table hover and spacing */
-    .table tbody tr:hover {
-        background-color: #f8f9fa;
-    }
-    .table td {
-        border-bottom: 1px solid #f1f1f1;
-    }
-</style>
 @endsection

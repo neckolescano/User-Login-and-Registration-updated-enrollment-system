@@ -6,163 +6,25 @@
     <title>Edit Enrollment | UM</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --um-maroon: #800000;
-            --um-gold: #d4af37;
-            --bg-light: #f4f7f6;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-light);
-            margin: 0;
-            padding: 40px 20px;
-            color: #333;
-        }
-
-        .enrollment-card {
-            max-width: 1000px;
-            margin: 0 auto;
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            overflow: visible; 
-        }
-
-        .card-header {
-            padding: 30px 40px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .header-title {
-            font-family: 'Orbitron', sans-serif;
-            color: var(--um-maroon);
-            font-size: 1.4rem;
-            margin: 0;
-            text-transform: uppercase;
-        }
-
+        :root { --um-maroon: #800000; --um-gold: #d4af37; --bg-light: #f4f7f6; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); margin: 0; padding: 40px 20px; color: #333; }
+        .enrollment-card { max-width: 1000px; margin: 0 auto; background: #fff; border-radius: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 20px; }
+        .card-header { padding: 40px; border-bottom: 2px solid #eee; }
+        .header-title { font-family: 'Orbitron', sans-serif; color: var(--um-maroon); font-size: 2rem; margin: 0; text-transform: uppercase; }
         .header-title span { color: var(--um-gold); }
-
-        .student-info {
-            font-size: 0.9rem;
-            color: #666;
-            margin-top: 8px;
-        }
-
+        .student-info { font-size: 1rem; color: #888; margin-top: 10px; }
         .form-body { padding: 40px; }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 25px;
-            margin-bottom: 40px;
-        }
-
-        label {
-            display: block;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #888;
-            margin-bottom: 8px;
-        }
-
-        select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            background: #fff;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.9rem;
-            cursor: pointer;
-        }
-
-        /* Styling for disabled/full options */
-        select option:disabled {
-            color: #ccc;
-            background-color: #f9f9f9;
-        }
-
-        .subject-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        .subject-table th {
-            text-align: left;
-            background: #f9f9f9;
-            padding: 15px;
-            font-size: 0.7rem;
-            font-family: 'Orbitron', sans-serif;
-            color: var(--um-maroon);
-            border-bottom: 2px solid #eee;
-        }
-
-        .subject-table td {
-            padding: 15px;
-            border-bottom: 1px solid #eee;
-            font-size: 0.85rem;
-        }
-
-        .table-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 0.8rem;
-            color: var(--um-maroon);
-            margin-bottom: 15px;
-        }
-
-        .badge-schedule {
-            background: #f0f0f0;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            color: #444;
-            display: inline-block;
-        }
-
-        .actions {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            gap: 20px;
-            margin-top: 40px;
-            padding-top: 30px;
-            border-top: 1px solid #eee;
-        }
-
-        .btn-cancel {
-            text-decoration: none;
-            color: #999;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 0.7rem;
-            font-weight: 700;
-            transition: 0.3s;
-        }
-
-        .btn-cancel:hover { color: #333; }
-
-        .btn-commit {
-            background: var(--um-maroon);
-            color: #fff;
-            border: none;
-            padding: 14px 35px;
-            border-radius: 6px;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 0.75rem;
-            font-weight: 700;
-            letter-spacing: 1px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .btn-commit:hover {
-            background: #600000;
-            transform: translateY(-2px);
-        }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 50px; }
+        label { display: block; font-family: 'Orbitron', sans-serif; font-size: 0.75rem; font-weight: 700; color: #aaa; margin-bottom: 12px; }
+        select { width: 100%; padding: 15px; border: 2px solid #eee; border-radius: 12px; background: #fafafa; font-family: 'Inter', sans-serif; }
+        .table-title { font-family: 'Orbitron', sans-serif; font-size: 0.85rem; color: var(--um-maroon); margin-bottom: 20px; border-left: 4px solid var(--um-gold); padding-left: 15px; }
+        .subject-table { width: 100%; border-collapse: collapse; }
+        .subject-table th { text-align: left; padding: 15px; font-family: 'Orbitron', sans-serif; font-size: 0.7rem; color: #aaa; border-bottom: 2px solid #f5f5f5; }
+        .subject-table td { padding: 20px 15px; border-bottom: 1px solid #f9f9f9; font-size: 0.9rem; }
+        .badge-schedule { background: #f8f9fa; padding: 8px 16px; border-radius: 50px; font-size: 0.75rem; font-weight: 600; border: 1px solid #eee; }
+        .actions { display: flex; justify-content: flex-end; align-items: center; gap: 25px; margin-top: 50px; padding-top: 30px; border-top: 2px solid #eee; }
+        .btn-cancel { text-decoration: none; color: #888; font-family: 'Orbitron', sans-serif; font-size: 0.75rem; font-weight: 700; }
+        .btn-commit { background: var(--um-maroon); color: #fff; border: none; padding: 15px 40px; border-radius: 50px; font-family: 'Orbitron', sans-serif; font-size: 0.8rem; font-weight: 700; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -171,9 +33,9 @@
     <div class="card-header">
         <h1 class="header-title">EDIT <span>ENROLLMENT</span></h1>
         <div class="student-info">
-            Modifying record for: <strong>{{ $record->first_name }} {{ $record->last_name }}</strong> 
-            <span style="margin-left: 10px; color: #ccc;">|</span> 
-            <span style="margin-left: 10px;">ID: #{{ $record->enrollment_id }}</span>
+            Modifying record for: <strong>{{ $record->student->first_name }} {{ $record->student->last_name }}</strong> 
+            <span style="margin: 0 15px; color: #eee;">|</span> 
+            <span>ID: #{{ $record->enrollment_id }}</span>
         </div>
     </div>
 
@@ -186,10 +48,9 @@
                 <div>
                     <label>Year Level</label>
                     <select name="year_level">
-                        <option value="1st Year" {{ $record->year_level == '1st Year' ? 'selected' : '' }}>1st Year</option>
-                        <option value="2nd Year" {{ $record->year_level == '2nd Year' ? 'selected' : '' }}>2nd Year</option>
-                        <option value="3rd Year" {{ $record->year_level == '3rd Year' ? 'selected' : '' }}>3rd Year</option>
-                        <option value="4th Year" {{ $record->year_level == '4th Year' ? 'selected' : '' }}>4th Year</option>
+                        @foreach(['1st Year', '2nd Year', '3rd Year', '4th Year'] as $level)
+                            <option value="{{ $level }}" {{ $record->student->year_level == $level ? 'selected' : '' }}>{{ $level }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <div>
@@ -201,7 +62,7 @@
                 </div>
             </div>
 
-            <div class="table-title">ENROLLED SUBJECT <span>SCHEDULE</span></div>
+            <div class="table-title">ENROLLED SUBJECT SCHEDULE</div>
             <table class="subject-table">
                 <thead>
                     <tr>
@@ -212,27 +73,17 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($enrolledSubjects as $subject)
+                    @foreach($enrolledSubjects as $detail)
                     <tr>
-                        <td><strong>{{ $subject->subject_code }}</strong></td>
-                        <td>{{ $subject->subject_name }}</td>
-                        <td><span class="badge-schedule">{{ $subject->schedule }}</span></td>
+                        <td><strong style="color: var(--um-maroon);">{{ $detail->section->subject->subject_code }}</strong></td>
+                        <td style="color: #444; font-weight: 600;">{{ $detail->section->subject->subject_name }}</td>
+                        <td><span class="badge-schedule">{{ $detail->section->schedule }}</span></td>
                         <td>
-                            {{-- Integrated Real-Time Slot Logic --}}
-                            <select name="sections[{{ $subject->detail_id }}]" style="padding: 8px; font-size: 0.8rem; border-color: #eee; background: #fafafa;">
-                                @foreach($allSections->where('subject_id', $subject->subject_id) as $section)
-                                    @php
-                                        // A section is full if slots are 0 and it's NOT the one currently assigned to this student
-                                        $isFull = ($section->remaining_slots <= 0 && $subject->section_id != $section->section_id);
-                                    @endphp
-                                    <option value="{{ $section->section_id }}" 
-                                        {{ $subject->section_id == $section->section_id ? 'selected' : '' }}
-                                        {{ $isFull ? 'disabled' : '' }}>
-                                        
-                                        {{ $section->schedule }} 
-                                        (Slots: {{ $section->remaining_slots > 0 ? $section->remaining_slots : '0' }})
-                                        
-                                        @if($isFull) - [FULL] @endif
+                            <select name="sections[{{ $detail->detail_id }}]" style="padding: 8px; font-size: 0.85rem; border-color: #eee;">
+                                @foreach($allSections->where('subject_id', $detail->section->subject_id) as $section)
+                                    @php $isFull = ($section->remaining_slots <= 0 && $detail->section_id != $section->section_id); @endphp
+                                    <option value="{{ $section->section_id }}" {{ $detail->section_id == $section->section_id ? 'selected' : '' }} {{ $isFull ? 'disabled' : '' }}>
+                                        {{ $section->schedule }} (Slots: {{ $section->remaining_slots }})
                                     </option>
                                 @endforeach
                             </select>
