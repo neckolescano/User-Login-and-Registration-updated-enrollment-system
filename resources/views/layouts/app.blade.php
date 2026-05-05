@@ -201,7 +201,7 @@
            {{-- 2. REGISTRAR ONLY --}}
             @if(Auth::user()->role === 'Registrar Staff')
                 <a href="{{ route('registrar.pending') }}" class="nav-link {{ Request::routeIs('registrar.pending') || Request::routeIs('registrar.verify') ? 'active' : '' }}">PENDING VERIFICATION</a>
-            @endif
+            @endif  
 
             {{-- 3. STUDENT ONLY --}}
             @if(Auth::user()->role === 'Student')

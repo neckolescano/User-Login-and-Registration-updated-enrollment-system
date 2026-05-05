@@ -42,7 +42,7 @@
     }
     .hero-title span { color: #d4af37; } 
 
-    /* 4. STEPS SECTION kani sya*/
+    /* 4. STEPS SECTION - Clean Centered Layout */
     .steps-section {
         width: 100%;
         background-color: #f5f5f5;
@@ -50,25 +50,14 @@
     }
 
     .steps-content {
-        display: grid;
-        grid-template-columns: 1fr 1.5fr;
-        gap: 60px;
-        max-width: 1300px;
+        max-width: 900px; /* Constrained width to prevent "empty" feel on wide screens */
         margin: 0 auto;
         padding: 0 5%;
-        align-items: start;
     }
-    .steps-images {
-        display: flex; 
-        flex-direction: column; 
-        gap: 30px; 
-        align-items: stretch; 
-    }
-    .steps-images img {
-        width: 100%;
-        border-radius: 30px;
-        box-shadow: 20px 20px 0px rgba(128, 0, 0, 0.1); 
-        transition: 0.5s ease;
+
+    .step-header {
+        text-align: center;
+        margin-bottom: 60px;
     }
 
     .step-subtitle {
@@ -84,55 +73,62 @@
         font-family: 'Orbitron', sans-serif;
         color: #800000;
         font-size: 2.5rem;
-        margin-bottom: 40px;
+        margin-bottom: 20px;
         text-transform: uppercase;
+    }
+
+    .modern-step-container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
     }
 
     .modern-step-card {
         display: flex;
-        align-items: flex-start;
-        gap: 25px;
-        padding: 25px;
-        margin-bottom: 20px;
-        background: #fdfdfd;
-        border-radius: 20px;
+        align-items: center;
+        gap: 30px;
+        padding: 35px;
+        background: #fff;
+        border-radius: 25px;
         border: 1px solid #eee;
         transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.02);
     }
 
     .modern-step-card:hover {
-        transform: translateX(15px);
-        background: #fff;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-        border-color: #800000;
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+        border-color: #d4af37;
     }
 
     .step-badge {
         background: #800000;
         color: #d4af37;
         font-family: 'Orbitron', sans-serif;
-        min-width: 50px;
-        height: 50px;
+        min-width: 60px;
+        height: 60px;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 12px;
+        border-radius: 15px;
         font-weight: bold;
-        font-size: 1.2rem;
+        font-size: 1.4rem;
+        flex-shrink: 0;
     }
 
     .step-info h4 {
-        margin: 0 0 8px 0;
+        margin: 0 0 10px 0;
         color: #1a1a1a;
-        font-size: 1.2rem;
+        font-size: 1.3rem;
         font-weight: 700;
+        font-family: 'Inter', sans-serif;
     }
 
     .step-info p {
         margin: 0;
-        color: #666;
-        line-height: 1.5;
-        font-size: 0.95rem;
+        color: #555;
+        line-height: 1.6;
+        font-size: 1rem;
     }
 
     /* 5. DATES SECTION glassmorphism design naa diri */
@@ -211,47 +207,41 @@
 
 <section class="steps-section">
     <div class="steps-content">
-        <div class="steps-images">
-            <img src="{{ asset('images/datebg1.png') }}" alt="University Campus">
-            <img src="{{ asset('images/datebg1.png') }}" alt="University Campus">
-        </div>
-        
-
-        <div class="steps-details">
+        <div class="step-header">
             <span class="step-subtitle">ADMISSIONS PROCESS</span>
             <h2 class="step-main-title">Steps to Enroll</h2>
-            
-            <div class="modern-step-container">
-                <div class="modern-step-card">
-                    <div class="step-badge">01</div>
-                    <div class="step-info">
-                        <h4>Get Assessed</h4>
-                        <p>Visit the Registrar or go online to request your official assessment form and evaluate your subjects for the semester.</p>
-                    </div>
+        </div>
+        
+        <div class="modern-step-container">
+            <div class="modern-step-card">
+                <div class="step-badge">01</div>
+                <div class="step-info">
+                    <h4>Get Assessed</h4>
+                    <p>Visit the Registrar or go online to request your official assessment form and evaluate your subjects for the semester.</p>
                 </div>
+            </div>
 
-                <div class="modern-step-card">
-                    <div class="step-badge">02</div>
-                    <div class="step-info">
-                        <h4>Secure Payment</h4>
-                        <p>Proceed to the Payment Portal to settle tuition and miscellaneous fees via our secure online gateway.</p>
-                    </div>
+            <div class="modern-step-card">
+                <div class="step-badge">02</div>
+                <div class="step-info">
+                    <h4>Secure Payment</h4>
+                    <p>Proceed to the Payment Portal to settle tuition and miscellaneous fees via our secure online gateway.</p>
                 </div>
+            </div>
 
-                <div class="modern-step-card">
-                    <div class="step-badge">03</div>
-                    <div class="step-info">
-                        <h4>Verify Transaction</h4>
-                        <p>Upload your proof of payment or wait for the system to auto-verify your transaction status.</p>
-                    </div>
+            <div class="modern-step-card">
+                <div class="step-badge">03</div>
+                <div class="step-info">
+                    <h4>Verify Transaction</h4>
+                    <p>Upload your proof of payment or wait for the system to auto-verify your transaction status.</p>
                 </div>
+            </div>
 
-                <div class="modern-step-card">
-                    <div class="step-badge">04</div>
-                    <div class="step-info">
-                        <h4>Claim ID & Certificate</h4>
-                        <p>Once verified, visit the Admissions office to claim your official University ID and Certificate of Matriculation.</p>
-                    </div>
+            <div class="modern-step-card">
+                <div class="step-badge">04</div>
+                <div class="step-info">
+                    <h4>Claim ID & Certificate</h4>
+                    <p>Once verified, visit the Admissions office to claim your official University ID and Certificate of Matriculation.</p>
                 </div>
             </div>
         </div>

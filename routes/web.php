@@ -64,8 +64,8 @@
             Route::get('/records/approved', [AdminController::class, 'approvedRecords'])->name('admin.enrollments.approved');
             Route::delete('/records/{id}', [AdminController::class, 'destroy'])->name('admin.records.destroy');
 
-            Route::post('/records/{id}/approve', [AdminController::class, 'approve'])->name('admin.records.approve');
-            Route::post('/records/{id}/reject', [AdminController::class, 'reject'])->name('admin.records.reject'); 
+            Route::patch('/records/{id}/approve', [AdminController::class, 'approve'])->name('admin.records.approve');
+            Route::patch('/records/{id}/reject', [AdminController::class, 'reject'])->name('admin.records.reject'); 
             
             Route::get('/records/{id}/edit', [AdminController::class, 'edit'])->name('admin.records.edit'); 
             Route::patch('/records/{id}/update', [AdminController::class, 'updateRecord'])->name('admin.records.update');

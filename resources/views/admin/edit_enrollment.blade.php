@@ -8,7 +8,7 @@
     <style>
         :root { --um-maroon: #800000; --um-gold: #d4af37; --bg-light: #f4f7f6; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); margin: 0; padding: 40px 20px; color: #333; }
-        .enrollment-card { max-width: 1000px; margin: 0 auto; background: #fff; border-radius: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 20px; }
+        .enrollment-card { max-width: 1100px; margin: 0 auto; background: #fff; border-radius: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 20px; }
         .card-header { padding: 40px; border-bottom: 2px solid #eee; }
         .header-title { font-family: 'Orbitron', sans-serif; color: var(--um-maroon); font-size: 2rem; margin: 0; text-transform: uppercase; }
         .header-title span { color: var(--um-gold); }
@@ -25,6 +25,10 @@
         .actions { display: flex; justify-content: flex-end; align-items: center; gap: 25px; margin-top: 50px; padding-top: 30px; border-top: 2px solid #eee; }
         .btn-cancel { text-decoration: none; color: #888; font-family: 'Orbitron', sans-serif; font-size: 0.75rem; font-weight: 700; }
         .btn-commit { background: var(--um-maroon); color: #fff; border: none; padding: 15px 40px; border-radius: 50px; font-family: 'Orbitron', sans-serif; font-size: 0.8rem; font-weight: 700; cursor: pointer; }
+        
+        /* Drop/Remove Subject Style */
+        .remove-container { display: flex; align-items: center; justify-content: center; }
+        .remove-checkbox { cursor: pointer; width: 18px; height: 18px; accent-color: #ff4d4d; }
     </style>
 </head>
 <body>
@@ -70,6 +74,7 @@
                         <th>Course Title</th>
                         <th>Assigned Schedule</th>
                         <th>Available Sections</th>
+                        <th style="text-align: center;">Drop</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -88,6 +93,9 @@
                                 @endforeach
                             </select>
                         </td>
+                        <td class="remove-container">
+                            <input type="checkbox" name="drop_subjects[]" value="{{ $detail->detail_id }}" class="remove-checkbox" title="Check to remove this subject">
+                        </td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -95,7 +103,7 @@
 
             <div class="actions">
                 <a href="{{ route('admin.manage_enrollments') }}" class="btn-cancel">CANCEL</a>
-                <button type="submit" class="btn-commit">COMMIT CHANGES</button>
+                <button type="submit" class="btn-commit" onclick="return confirm('Are you sure you want to commit these changes? Dropped subjects will be removed permanently.')">COMMIT CHANGES</button>
             </div>
         </form>
     </div>

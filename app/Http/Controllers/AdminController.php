@@ -84,7 +84,6 @@ class AdminController extends Controller
 
     public function storeUser(Request $request)
     {
-        // 1. ADDED school_id_number to validation
         $request->validate([
             'school_id_number' => 'required|string|unique:students,school_id_number', 
             'first_name' => 'required|string|max:255',
@@ -104,10 +103,9 @@ class AdminController extends Controller
                 'role' => 'Student', 
             ]);
 
-            // 2. ADDED school_id_number to the insert array
             DB::table('students')->insert([
                 'user_id' => $user->user_id,
-                'school_id_number' => $request->school_id_number, // THIS WAS MISSING
+                'school_id_number' => $request->school_id_number,
                 'course_id' => $request->course_id,
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
@@ -126,9 +124,6 @@ class AdminController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    /**
-     * List all Pending Enrollments
-     */
     public function allRecords()
     {
         $enrollments = Enrollment::with(['student.course'])
@@ -139,9 +134,6 @@ class AdminController extends Controller
         return view('admin.manage_enrollments', compact('enrollments'));
     }
 
-    /**
-     * List all Approved Enrollments
-     */
     public function approvedRecords()
     {
         $enrollments = Enrollment::with(['student.course'])
@@ -152,24 +144,16 @@ class AdminController extends Controller
         return view('admin.approved_enrollments', compact('enrollments'));
     }
 
-    /**
-     * Approve Enrollment
-     */
     public function approve($id)
     {
         $enrollment = Enrollment::find($id);
-
         if ($enrollment) {
             $enrollment->update(['status' => 'Approved']);
             return redirect()->back()->with('success', 'Enrollment approved successfully!');
         }
-
         return redirect()->back()->with('error', 'Record not found.');
     }
 
-    /**
-     * Reject Enrollment
-     */
     public function reject($id)
     {
         $enrollment = Enrollment::find($id);
@@ -180,9 +164,6 @@ class AdminController extends Controller
         return redirect()->back()->with('error', 'Record not found.');
     }
 
-    /**
-     * Delete Enrollment Record
-     */
     public function destroy($id)
     {
         $enrollment = Enrollment::find($id);
@@ -237,21 +218,36 @@ class AdminController extends Controller
         $enrollment = Enrollment::findOrFail($id);
 
         DB::transaction(function () use ($request, $enrollment) {
+            // Update enrollment semester
             $enrollment->update([
                 'semester' => $request->semester,
             ]);
 
+            // Update student year level
             if ($enrollment->student) {
                 $enrollment->student->update([
                     'year_level' => $request->year_level,
                 ]);
             }
 
+            // 1. DELETE/DROP SUBJECTS FIRST
+            if ($request->has('drop_subjects')) {
+                DB::table('enrollment_details')
+                    ->whereIn('detail_id', $request->drop_subjects)
+                    ->delete();
+            }
+
+            // 2. UPDATE REMAINING SECTIONS
             if ($request->has('sections')) {
                 foreach ($request->sections as $detail_id => $new_section_id) {
-                    DB::table('enrollment_details')
-                        ->where('detail_id', $detail_id)
-                        ->update(['section_id' => $new_section_id]);
+                    // Check if this detail ID was NOT just deleted
+                    $wasDropped = $request->has('drop_subjects') && in_array($detail_id, $request->drop_subjects);
+                    
+                    if (!$wasDropped) {
+                        DB::table('enrollment_details')
+                            ->where('detail_id', $detail_id)
+                            ->update(['section_id' => $new_section_id]);
+                    }
                 }
             }
         });

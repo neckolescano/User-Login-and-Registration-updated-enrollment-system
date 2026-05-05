@@ -108,6 +108,8 @@
     }
 </style>
 
+
+
 <div class="admin-main-container">
     <div class="container">
         
@@ -142,7 +144,7 @@
                 <div class="content-card">
                     <div class="table-responsive">
                         <table class="custom-dashboard-table">
-                            <thead>
+                            <thead> 
                                 <tr>
                                     <th class="table-label" style="width: 25%;">Student Name</th>
                                     <th class="table-label" style="width: 35%;">Course</th>
